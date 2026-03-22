@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="12% Challenge">
+<meta name="theme-color" content="#09090B">
+<title>12% Body Fat Challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #09090B; --card: #18181b; --border: #27272a; --border2: #3f3f46;
+    --text: #e4e4e7; --text2: #a1a1aa; --text3: #71717a; --text4: #52525b;
+    --green: #6EE7B7; --green2: #34D399; --blue: #7DD3FC; --red: #FCA5A5;
+    --red2: #F87171; --yellow: #FDE68A; --yellow2: #FBBF24; --purple: #DDD6FE; --purple2: #A78BFA;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    background: var(--bg); color: var(--text); font-family: 'Space Mono', monospace;
+    min-height: 100vh; min-height: 100dvh; overscroll-behavior: none;
+    padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
+  }
+  button { font-family: 'Space Grotesk', sans-serif; }
+  input, textarea { font-family: 'Space Mono', monospace; }
+
+  .header {
+    background: linear-gradient(180deg, var(--bg), #111113);
+    border-bottom: 1px solid var(--border); padding: 20px 20px 14px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14; }
+  .title {
+    font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700;
+    letter-spacing: -0.5px; background: linear-gradient(135deg, var(--green), var(--blue));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .subtitle { font-size: 11px; color: var(--text3); font-family: 'Space Grotesk', sans-serif; margin-top: 4px; }
+  .phase-badge {
+    border-radius: 8px; padding: 6px 12px; text-align: right; max-width: 170px;
+  }
+  .phase-name { font-size: 11px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; }
+  .phase-desc { font-size: 9px; color: var(--text3); margin-top: 2px; font-family: 'Space Grotesk', sans-serif; }
+
+  .tabs { display: flex; gap: 4px; }
+  .tab {
+    background: transparent; color: var(--text3); border: 1px solid transparent;
+    border-radius: 6px; padding: 6px 14px; font-size: 12px; font-weight: 500;
+    cursor: pointer; transition: all 0.2s;
+  }
+  .tab.active { background: var(--border); color: var(--text); border-color: var(--border2); }
+
+  .content { padding: 16px 20px 40px; }
+
+  .card {
+    background: var(--card); border-radius: 12px; padding: 20px;
+    border: 1px solid var(--border); margin-bottom: 20px;
+  }
+  .card-title {
+    margin: 0 0 12px; font-size: 14px; font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600; color: var(--text2);
+  }
+
+  .week-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .week-btn {
+    background: var(--card); border: 1px solid var(--border); color: var(--text2);
+    border-radius: 6px; padding: 6px 12px; cursor: pointer; font-size: 14px;
+  }
+  .week-label { text-align: center; }
+  .week-num { font-size: 16px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; }
+  .week-range { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+  .progress-bar-wrap { margin-bottom: 20px; }
+  .progress-bar-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .progress-bar-label { font-size: 11px; color: var(--text3); font-family: 'Space Grotesk', sans-serif; }
+  .progress-bar-pct { font-size: 13px; font-weight: 700; }
+  .progress-bar { height: 6px; background: var(--card); border-radius: 3px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; border-radius: 3px; transition: width 0.5s ease; }
+
+  .matrix-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-bottom: 4px; }
+  .matrix { border-collapse: collapse; width: 100%; min-width: 520px; }
+  .matrix th { padding: 4px 0; text-align: center; min-width: 42px; }
+  .matrix .habit-col {
+    text-align: left; padding: 8px 6px 8px 0; font-size: 10px; color: var(--text4);
+    font-family: 'Space Grotesk', sans-serif; position: sticky; left: 0;
+    background: var(--bg); z-index: 2; min-width: 150px;
+  }
+  .matrix .cat-label {
+    padding-top: 14px; padding-bottom: 4px; font-size: 10px; font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif; letter-spacing: 1.5px;
+    position: sticky; left: 0; background: var(--bg);
+  }
+  .matrix .habit-name {
+    padding: 8px 6px 8px 0; font-size: 12px; font-family: 'Space Grotesk', sans-serif;
+    white-space: nowrap; position: sticky; left: 0; background: var(--bg); z-index: 1;
+  }
+  .matrix .habit-row { border-bottom: 1px solid var(--card); }
+  .matrix .count-col { text-align: center; font-size: 12px; color: var(--text3); font-weight: 500; }
+
+  .day-hdr-label { font-size: 9px; }
+  .day-hdr-num { font-size: 13px; border-radius: 6px; padding: 2px 0; }
+  .day-hdr-today .day-hdr-label { color: var(--green) !important; font-weight: 700; }
+  .day-hdr-today .day-hdr-num { color: var(--green) !important; font-weight: 700; background: rgba(110,231,183,0.13); }
+
+  .check-btn {
+    width: 32px; height: 32px; border-radius: 6px; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; transition: all 0.15s ease; border-width: 2px; border-style: solid;
+  }
+  .check-btn.off { border-color: var(--border); background: var(--card); color: transparent; }
+
+  .day-pct-row { display: flex; gap: 6px; overflow-x: auto; padding-top: 12px; padding-bottom: 8px; }
+  .day-pct-item {
+    flex: 1 0 42px; text-align: center; border-radius: 8px; padding: 8px 4px;
+  }
+  .day-pct-date { font-size: 9px; color: var(--text4); margin-bottom: 3px; }
+  .day-pct-val { font-size: 14px; font-weight: 700; }
+
+  .input-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .input-group { flex: 1; min-width: 110px; }
+  .input-label { font-size: 10px; color: var(--text3); display: block; margin-bottom: 4px; font-family: 'Space Grotesk', sans-serif; }
+  .input-field {
+    width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: 8px;
+    padding: 10px 12px; color: var(--text); font-size: 16px; outline: none;
+  }
+  .btn-save {
+    align-self: flex-end; border: none; border-radius: 8px; padding: 10px 24px;
+    font-weight: 700; font-size: 13px; cursor: pointer; color: var(--bg);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .btn-save.green { background: linear-gradient(135deg, var(--green), var(--green2)); }
+  .btn-save.purple { background: linear-gradient(135deg, var(--purple), var(--purple2)); }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+  .stat-card { background: var(--card); border-radius: 12px; padding: 16px; border: 1px solid var(--border); }
+  .stat-icon { font-size: 20px; margin-bottom: 4px; }
+  .stat-label { font-size: 10px; color: var(--text3); font-family: 'Space Grotesk', sans-serif; }
+  .stat-value { font-size: 20px; font-weight: 700; margin-top: 2px; }
+  .stat-sub { font-size: 10px; color: var(--text4); margin-top: 2px; font-family: 'Space Grotesk', sans-serif; }
+
+  .table-wrap { overflow-x: auto; }
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    text-align: left; padding: 8px 10px; font-size: 10px; color: var(--text4);
+    border-bottom: 1px solid var(--border); font-family: 'Space Grotesk', sans-serif;
+  }
+  .data-table td { padding: 8px 10px; font-size: 12px; }
+  .data-table tr { border-bottom: 1px solid #1c1c20; }
+
+  .overall-hero {
+    background: linear-gradient(135deg, var(--card), #1a1a2e); border-radius: 16px;
+    padding: 24px; margin-bottom: 20px; border: 1px solid var(--border); text-align: center;
+  }
+  .overall-label { font-size: 11px; color: var(--text3); font-family: 'Space Grotesk', sans-serif; margin-bottom: 4px; }
+  .overall-pct {
+    font-size: 52px; font-weight: 700; line-height: 1;
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .overall-sub { font-size: 11px; color: var(--text4); font-family: 'Space Grotesk', sans-serif; margin-top: 4px; }
+
+  .bar-chart { display: flex; align-items: flex-end; gap: 8px; height: 140px; }
+  .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; }
+  .bar-pct { font-size: 10px; font-weight: 700; margin-bottom: 4px; }
+  .bar-fill { width: 100%; max-width: 40px; border-radius: 6px 6px 0 0; transition: height 0.5s; }
+  .bar-label { font-size: 9px; color: var(--text4); margin-top: 4px; font-family: 'Space Grotesk', sans-serif; }
+
+  .habit-bar-item { margin-bottom: 12px; }
+  .habit-bar-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .habit-bar-name { font-size: 12px; font-family: 'Space Grotesk', sans-serif; }
+  .habit-bar-count { font-size: 12px; font-weight: 700; }
+  .habit-bar-track { height: 4px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .habit-bar-fill { height: 100%; border-radius: 2px; transition: width 0.4s; }
+
+  .macro-row { display: flex; gap: 8px; }
+  .macro-item { flex: 1; text-align: center; padding: 12px; background: var(--bg); border-radius: 8px; }
+  .macro-val { font-size: 20px; font-weight: 700; }
+  .macro-label { font-size: 10px; color: var(--text3); margin-top: 2px; font-family: 'Space Grotesk', sans-serif; }
+  .macro-pct { font-size: 9px; color: var(--text4); margin-top: 2px; }
+  .macro-total { text-align: center; margin-top: 14px; font-size: 16px; font-weight: 700; color: var(--green); }
+
+  .review-textarea {
+    width: 100%; background: var(--bg); border: 1px solid var(--border2); border-radius: 8px;
+    padding: 12px; color: var(--text); font-size: 13px; font-family: 'Space Grotesk', sans-serif;
+    outline: none; resize: vertical; line-height: 1.6; margin-bottom: 12px;
+  }
+  .review-entry { margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .review-date { font-size: 11px; color: var(--green); font-weight: 700; margin-bottom: 6px; }
+  .review-text { font-size: 13px; color: var(--text2); line-height: 1.6; font-family: 'Space Grotesk', sans-serif; white-space: pre-wrap; }
+
+  .reset-wrap { text-align: center; margin-top: 32px; padding-bottom: 20px; }
+  .reset-btn {
+    background: transparent; border: 1px solid var(--border); color: var(--text4);
+    border-radius: 6px; padding: 6px 16px; font-size: 11px; cursor: pointer;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  .empty { color: var(--text4); font-size: 12px; font-family: 'Space Grotesk', sans-serif; text-align: center; padding: 20px 0; }
+
+  @media (max-width: 420px) {
+    .title { font-size: 17px; }
+    .phase-badge { max-width: 140px; }
+    .stat-grid { gap: 8px; }
+    .stat-value { font-size: 17px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+const HABITS = [
+  { id:"wake", name:"Wake Up by 7AM", emoji:"⏰", cat:"daily" },
+  { id:"water", name:"Water 3000ml", emoji:"💧", cat:"daily" },
+  { id:"gym", name:"Gym / Training", emoji:"🏋️", cat:"fitness" },
+  { id:"rehab", name:"Shoulder Rehab", emoji:"🩹", cat:"fitness" },
+  { id:"mealprep", name:"Eat On Plan", emoji:"🥗", cat:"nutrition" },
+  { id:"protein", name:"Protein 160g+", emoji:"🥩", cat:"nutrition" },
+  { id:"calories", name:"Calories < 1750", emoji:"🔥", cat:"nutrition" },
+  { id:"read", name:"Reading / Learning", emoji:"📖", cat:"growth" },
+  { id:"job", name:"Job Search", emoji:"💼", cat:"growth" },
+  { id:"review", name:"Daily Review", emoji:"📝", cat:"daily" },
+  { id:"sleep", name:"Sleep 7hr+", emoji:"😴", cat:"daily" },
+];
+
+const CATS = {
+  daily:{ label:"DAILY", color:"#6EE7B7" },
+  fitness:{ label:"FITNESS", color:"#7DD3FC" },
+  nutrition:{ label:"NUTRITION", color:"#FCA5A5" },
+  growth:{ label:"GROWTH", color:"#DDD6FE" },
+};
+
+const START = new Date(2026,2,19);
+const END = new Date(2026,4,20);
+const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+
+const dk = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const weekDays = w => { const r=[]; for(let i=0;i<7;i++){const d=new Date(START);d.setDate(d.getDate()+(w-1)*7+i);if(d<=END)r.push(d);} return r; };
+const totalWks = Math.ceil((END-START)/(1000*60*60*24*7));
+const pCol = p => p>=70?"#6EE7B7":p>=40?"#FDE68A":"#FCA5A5";
+const pGrad = p => p>=70?"linear-gradient(90deg,#6EE7B7,#34D399)":p>=40?"linear-gradient(90deg,#FDE68A,#FBBF24)":"linear-gradient(90deg,#FCA5A5,#F87171)";
+const pGradV = p => p>=70?"linear-gradient(180deg,#6EE7B7,#059669)":p>=40?"linear-gradient(180deg,#FDE68A,#D97706)":"linear-gradient(180deg,#FCA5A5,#DC2626)";
+
+const load = k => { try { return JSON.parse(localStorage.getItem(k)) || {}; } catch { return {}; } };
+const save = (k,v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+
+function App() {
+  const [hab, setHab] = useState(() => load("ht_hab"));
+  const [bod, setBod] = useState(() => load("ht_bod"));
+  const [nts, setNts] = useState(() => load("ht_nts"));
+  const [wk, setWk] = useState(1);
+  const [view, setView] = useState("tracker");
+  const [bIn, setBIn] = useState({w:"",b:""});
+  const [nIn, setNIn] = useState("");
+
+  const today = dk(new Date());
+  const days = weekDays(wk);
+  const daysLeft = Math.max(0, Math.ceil((END - new Date())/(1000*60*60*24)));
+
+  useEffect(() => {
+    const diff = Math.floor((new Date()-START)/(1000*60*60*24));
+    setWk(Math.max(1, Math.min(totalWks, Math.floor(diff/7)+1)));
+  }, []);
+
+  const sHab = d => { setHab(d); save("ht_hab",d); };
+  const sBod = d => { setBod(d); save("ht_bod",d); };
+  const sNts = d => { setNts(d); save("ht_nts",d); };
+
+  const tog = (day,id) => { const k=`${day}_${id}`; sHab({...hab,[k]:!hab[k]}); };
+  const on = (day,id) => !!hab[`${day}_${id}`];
+
+  const dayP = day => { let d=0; HABITS.forEach(h=>{if(on(day,h.id))d++;}); return Math.round(d/HABITS.length*100); };
+  const wkP = () => { let t=0,d=0; days.forEach(dy=>{const k=dk(dy);HABITS.forEach(h=>{t++;if(on(k,h.id))d++;});}); return t?Math.round(d/t*100):0; };
+  const hWk = id => { let c=0; days.forEach(d=>{if(on(dk(d),id))c++;}); return c; };
+
+  const overall = () => {
+    let t=0,d=0; const now=new Date();
+    for(let w=1;w<=totalWks;w++) weekDays(w).forEach(dy=>{if(dy<=now){const k=dk(dy);HABITS.forEach(h=>{t++;if(on(k,h.id))d++;});}});
+    return {t,d,pct:t?Math.round(d/t*100):0};
+  };
+
+  const wkHist = () => {
+    const r=[]; const now=new Date();
+    for(let w=1;w<=totalWks;w++){let t=0,d=0;weekDays(w).forEach(dy=>{if(dy<=now){const k=dk(dy);HABITS.forEach(h=>{t++;if(on(k,h.id))d++;});}});if(t>0)r.push({w,pct:Math.round(d/t*100)});}
+    return r;
+  };
+
+  const bodHist = () => {
+    const r=[];
+    for(let w=1;w<=totalWks;w++) weekDays(w).forEach(dy=>{const k=dk(dy);const wt=bod[`${k}_w`],bf=bod[`${k}_b`];if(wt||bf)r.push({date:k,wt,bf,wk:w});});
+    return r;
+  };
+
+  const saveBod = () => {
+    const nd={...bod};
+    if(bIn.w) nd[`${today}_w`]=parseFloat(bIn.w);
+    if(bIn.b) nd[`${today}_b`]=parseFloat(bIn.b);
+    sBod(nd); setBIn({w:"",b:""});
+  };
+
+  const saveNote = () => { sNts({...nts,[today]:nIn}); setNIn(""); };
+
+  const phase = wk<=3
+    ? {name:"Conservative Phase",desc:"Avoid left shoulder stress. Lower body focus.",color:"#FCA5A5"}
+    : wk<=6
+    ? {name:"Progressive Return",desc:"Light left arm work. Test recovery.",color:"#FDE68A"}
+    : {name:"Full Send",desc:"Near-normal training. Maintain loads.",color:"#6EE7B7"};
+
+  const wp = wkP();
+  const os = overall();
+
+  const resetAll = () => {
+    if(confirm("Reset ALL data? This cannot be undone.")){
+      sHab({}); sBod({}); sNts({});
+      localStorage.removeItem("ht_hab"); localStorage.removeItem("ht_bod"); localStorage.removeItem("ht_nts");
+    }
+  };
+
+  return (<div>
+    {/* HEADER */}
+    <div className="header">
+      <div className="header-top">
+        <div>
+          <div className="title">12% BODY FAT CHALLENGE</div>
+          <div className="subtitle">78kg → 71.4kg · 19.4% → 12% · {daysLeft} days left</div>
+        </div>
+        <div className="phase-badge" style={{background:phase.color+"15",border:`1px solid ${phase.color}33`}}>
+          <div className="phase-name" style={{color:phase.color}}>{phase.name}</div>
+          <div className="phase-desc">{phase.desc}</div>
+        </div>
+      </div>
+      <div className="tabs">
+        {[{k:"tracker",l:"Track"},{k:"body",l:"Body"},{k:"analysis",l:"Analysis"},{k:"review",l:"Review"}].map(t=>(
+          <button key={t.k} className={`tab ${view===t.k?"active":""}`} onClick={()=>setView(t.k)}>{t.l}</button>
+        ))}
+      </div>
+    </div>
+
+    <div className="content">
+
+    {/* ====== TRACKER ====== */}
+    {view==="tracker" && <div>
+      <div className="week-nav">
+        <button className="week-btn" onClick={()=>setWk(Math.max(1,wk-1))}>←</button>
+        <div className="week-label">
+          <div className="week-num">Week {wk}</div>
+          <div className="week-range">{days.length>0&&`${dk(days[0])} ~ ${dk(days[days.length-1])}`}</div>
+        </div>
+        <button className="week-btn" onClick={()=>setWk(Math.min(totalWks,wk+1))}>→</button>
+      </div>
+
+      <div className="progress-bar-wrap">
+        <div className="progress-bar-header">
+          <span className="progress-bar-label">Week Completion</span>
+          <span className="progress-bar-pct" style={{color:pCol(wp)}}>{wp}%</span>
+        </div>
+        <div className="progress-bar">
+          <div className="progress-bar-fill" style={{width:`${wp}%`,background:pGrad(wp)}}/>
+        </div>
+      </div>
+
+      <div className="matrix-wrap">
+        <table className="matrix">
+          <thead><tr>
+            <th className="habit-col">Habit</th>
+            {days.map(d=>{const k=dk(d),isT=k===today; return(
+              <th key={k} className={isT?"day-hdr-today":""}>
+                <div className="day-hdr-label" style={{color:isT?"":"#52525b"}}>{DAYS[d.getDay()]}</div>
+                <div className="day-hdr-num" style={{color:isT?"":"#a1a1aa",fontWeight:isT?700:400}}>{d.getDate()}</div>
+              </th>
+            );})}
+            <th style={{fontSize:10,color:"#52525b",textAlign:"center",padding:"0 4px"}}>✓</th>
+          </tr></thead>
+          <tbody>
+            {Object.entries(CATS).map(([ck,cat])=><React.Fragment key={ck}>
+              <tr><td colSpan={days.length+2} className="cat-label" style={{color:cat.color}}>{cat.label}</td></tr>
+              {HABITS.filter(h=>h.cat===ck).map(h=>(
+                <tr key={h.id} className="habit-row">
+                  <td className="habit-name"><span style={{marginRight:6}}>{h.emoji}</span>{h.name}</td>
+                  {days.map(d=>{const k=dk(d),o=on(k,h.id),col=CATS[h.cat].color; return(
+                    <td key={k} style={{textAlign:"center",padding:3}}>
+                      <button className={`check-btn ${o?"":"off"}`}
+                        style={o?{borderColor:col,background:col+"30",color:col}:{}}
+                        onClick={()=>tog(k,h.id)}>{o?"✓":""}</button>
+                    </td>
+                  );})}
+                  <td className="count-col">{hWk(h.id)}/{days.length}</td>
+                </tr>
+              ))}
+            </React.Fragment>)}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="day-pct-row">
+        {days.map(d=>{const k=dk(d),p=dayP(k),isT=k===today; return(
+          <div key={k} className="day-pct-item" style={{background:isT?"#27272a":"#18181b",border:isT?"1px solid #3f3f46":"1px solid #1c1c20"}}>
+            <div className="day-pct-date">{d.getDate()}</div>
+            <div className="day-pct-val" style={{color:p>=80?"#6EE7B7":p>=50?"#FDE68A":p>0?"#FCA5A5":"#27272a"}}>{p}%</div>
+          </div>
+        );})}
+      </div>
+    </div>}
+
+    {/* ====== BODY ====== */}
+    {view==="body" && <div>
+      <div className="card">
+        <div className="card-title">📊 Today's Log ({today})</div>
+        <div className="input-row">
+          <div className="input-group">
+            <label className="input-label">Weight (kg)</label>
+            <input type="number" step="0.1" value={bIn.w} onChange={e=>setBIn(p=>({...p,w:e.target.value}))} placeholder="78.0" className="input-field"/>
+          </div>
+          <div className="input-group">
+            <label className="input-label">Body Fat (%)</label>
+            <input type="number" step="0.1" value={bIn.b} onChange={e=>setBIn(p=>({...p,b:e.target.value}))} placeholder="19.4" className="input-field"/>
+          </div>
+          <button className="btn-save green" onClick={saveBod}>Save</button>
+        </div>
+      </div>
+
+      <div className="stat-grid">
+        {[{l:"Target Weight",v:"71.4 kg",s:"Need to lose 6.6kg",i:"⚖️"},
+          {l:"Target BF%",v:"12%",s:"From 19.4% → 12%",i:"📉"},
+          {l:"Days Left",v:`${daysLeft}`,s:`${Math.ceil(daysLeft/7)} weeks`,i:"⏳"},
+          {l:"Weekly Target",v:"-0.73 kg",s:"Deficit ~600kcal/day",i:"🎯"}
+        ].map((c,i)=>(
+          <div key={i} className="stat-card">
+            <div className="stat-icon">{c.i}</div>
+            <div className="stat-label">{c.l}</div>
+            <div className="stat-value">{c.v}</div>
+            <div className="stat-sub">{c.s}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="card">
+        <div className="card-title">📈 History</div>
+        {bodHist().length===0 ? <p className="empty">No entries yet. Start logging above!</p> :
+        <div className="table-wrap">
+          <table className="data-table">
+            <thead><tr>{["Date","Weight","Body Fat","Week","vs Target"].map(h=><th key={h}>{h}</th>)}</tr></thead>
+            <tbody>{bodHist().reverse().map((e,i)=>(
+              <tr key={i}>
+                <td>{e.date}</td>
+                <td style={{fontWeight:600}}>{e.wt?`${e.wt} kg`:"—"}</td>
+                <td style={{fontWeight:600}}>{e.bf?`${e.bf}%`:"—"}</td>
+                <td style={{color:"#71717a"}}>W{e.wk}</td>
+                <td style={{color:e.wt&&e.wt>71.4?"#FCA5A5":"#6EE7B7",fontWeight:500}}>{e.wt?`${(e.wt-71.4).toFixed(1)} kg`:"—"}</td>
+              </tr>
+            ))}</tbody>
+          </table>
+        </div>}
+      </div>
+    </div>}
+
+    {/* ====== ANALYSIS ====== */}
+    {view==="analysis" && <div>
+      <div className="overall-hero">
+        <div className="overall-label">Overall Completion</div>
+        <div className="overall-pct" style={{background:pGrad(os.pct)}}>{os.pct}%</div>
+        <div className="overall-sub">{os.d} / {os.t} habits completed</div>
+      </div>
+
+      <div className="card">
+        <div className="card-title">Weekly Progress</div>
+        <div className="bar-chart">
+          {wkHist().length===0 ? <div className="empty" style={{width:"100%",padding:"40px 0"}}>Start tracking to see weekly progress</div>
+          : wkHist().map((w,i)=>(
+            <div key={i} className="bar-col">
+              <div className="bar-pct" style={{color:pCol(w.pct)}}>{w.pct}%</div>
+              <div className="bar-fill" style={{height:`${Math.max(4,w.pct*1.2)}px`,background:pGradV(w.pct)}}/>
+              <div className="bar-label">W{w.w}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="card">
+        <div className="card-title">Habit Breakdown (This Week)</div>
+        {HABITS.map(h=>{const c=hWk(h.id),p=days.length?Math.round(c/days.length*100):0; return(
+          <div key={h.id} className="habit-bar-item">
+            <div className="habit-bar-header">
+              <span className="habit-bar-name">{h.emoji} {h.name}</span>
+              <span className="habit-bar-count" style={{color:pCol(p)}}>{c}/{days.length}</span>
+            </div>
+            <div className="habit-bar-track"><div className="habit-bar-fill" style={{width:`${p}%`,background:CATS[h.cat].color}}/></div>
+          </div>
+        );})}
+      </div>
+
+      <div className="card">
+        <div className="card-title">🍽️ Daily Macro Targets</div>
+        <div className="macro-row">
+          {[{l:"Protein",v:"160g",c:"#FCA5A5",p:37},{l:"Carbs",v:"165g",c:"#7DD3FC",p:38},{l:"Fat",v:"50g",c:"#FDE68A",p:25}].map((m,i)=>(
+            <div key={i} className="macro-item">
+              <div className="macro-val" style={{color:m.c}}>{m.v}</div>
+              <div className="macro-label">{m.l}</div>
+              <div className="macro-pct">{m.p}%</div>
+            </div>
+          ))}
+        </div>
+        <div className="macro-total">Total: ~1,750 kcal</div>
+      </div>
+    </div>}
+
+    {/* ====== REVIEW ====== */}
+    {view==="review" && <div>
+      <div className="card">
+        <div className="card-title">📝 Daily Review ({today})</div>
+        <label className="input-label" style={{marginBottom:6}}>What went well today? Most important thing for tomorrow?</label>
+        <textarea className="review-textarea" rows={5}
+          value={nIn||nts[today]||""}
+          onChange={e=>setNIn(e.target.value)}
+          placeholder="Nailed my meal prep today. Tomorrow: prep for interview..."
+        />
+        <button className="btn-save purple" onClick={saveNote}>Save Review</button>
+      </div>
+
+      <div className="card">
+        <div className="card-title">Past Reviews</div>
+        {Object.entries(nts).length===0 ? <p className="empty">Write your first review above!</p>
+        : Object.entries(nts).sort((a,b)=>b[0].localeCompare(a[0])).map(([date,note])=>(
+          <div key={date} className="review-entry">
+            <div className="review-date">{date}</div>
+            <div className="review-text">{note}</div>
+          </div>
+        ))}
+      </div>
+    </div>}
+
+    <div className="reset-wrap">
+      <button className="reset-btn" onClick={resetAll}>Reset All Data</button>
+    </div>
+    </div>
+  </div>);
+}
+
+ReactDOM.createRoot(document.getElementById("app")).render(<App />);
+</script>
+</body>
+</html>
